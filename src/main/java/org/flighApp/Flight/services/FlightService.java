@@ -30,11 +30,9 @@ public class FlightService {
     return flightRepository.searchFlight(originCode, destinationCode);
   }
 
-
   public Uni<Boolean> getAvailableSeats(SearchFlight request) {
     return flightRepository.getAvailableSeats(request);
   }
-
 
   public Uni<List<TripClassPricesDto>> allFlightsGroupByTripClass() {
     return flightRepository.allFlightsGroupByTripClass();
@@ -46,5 +44,9 @@ public class FlightService {
 
   public Uni<List<Flight>> getCheapestFlights() {
     return flightRepository.getCheapestFlights();
+  }
+
+  public Uni<List<Flight>> find(PaginationParams params) {
+    return flightRepository.find(params);
   }
 }

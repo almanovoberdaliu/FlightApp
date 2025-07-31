@@ -35,6 +35,10 @@ public class FlightRepository {
     // getFlightsCollection().find().collect().asList();
   }
 
+  public Uni<List<Flight>> find(PaginationParams params) {
+    return MongoDbUtil.find(getFlightsCollection(), params);
+  }
+
   public Uni<Void> insert(FlightDto flight) {
     return getFlightsCollection()
         .insertOne(flight)
@@ -100,7 +104,7 @@ public class FlightRepository {
 
   public Uni<List<Flight>> findPricesByTripClass(String tripClass) {
     Bson filter = Filters.eq(Flight.Fields.tripClass, tripClass);
-    return MongoDbUtil.find(getFlightsCollection(),filter);
+    return MongoDbUtil.find(getFlightsCollection(), filter);
   }
 
   public Uni<List<Flight>> searchFlight(String originCode, String destinationCode) {
@@ -122,9 +126,7 @@ public class FlightRepository {
   }
 
   public Uni<List<Flight>> getCheapestFlights() {
-    List<Bson> pipeline =
-            List.of(new Document("$sort",
-                    new Document("priceForOneWay", 1L)));
+    List<Bson> pipeline = List.of(new Document("$sort", new Document("priceForOneWay", 1L)));
 
     return MongoDbUtil.aggregate(getFlightsCollection(), pipeline);
   }

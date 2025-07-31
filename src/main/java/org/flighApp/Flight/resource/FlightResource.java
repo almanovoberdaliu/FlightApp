@@ -8,6 +8,7 @@ import java.util.List;
 import org.flighApp.Flight.dto.FlightDto;
 import org.flighApp.Flight.dto.TripClassPricesDto;
 import org.flighApp.Flight.models.Flight;
+import org.flighApp.Flight.models.PaginationParams;
 import org.flighApp.Flight.models.SearchFlight;
 import org.flighApp.Flight.services.FlightService;
 
@@ -46,13 +47,19 @@ public class FlightResource {
     return flightService.searchFlight(originCode, destinationCode);
   }
 
-//  @POST
-//  @Path("/total")
-//  @Consumes(MediaType.APPLICATION_JSON)
-//  @Produces(MediaType.APPLICATION_JSON)
-//  public Uni<Integer> getTotalPassengers(SearchFlight request) {
-//    return flightService.getTotalPassengers(request);
-//  }
+  @POST
+  @Path("/find-with-pagination")
+  public Uni<List<Flight>> find(PaginationParams params) {
+    return flightService.find(params);
+  }
+
+  //  @POST
+  //  @Path("/total")
+  //  @Consumes(MediaType.APPLICATION_JSON)
+  //  @Produces(MediaType.APPLICATION_JSON)
+  //  public Uni<Integer> getTotalPassengers(SearchFlight request) {
+  //    return flightService.getTotalPassengers(request);
+  //  }
 
   @POST
   @Path("/available")
@@ -85,19 +92,16 @@ public class FlightResource {
     return flightService.allFlightsGroupByTripClass();
   }
 
-
   @GET
   @Path("/prices-by-trip-class")
   @Produces(MediaType.APPLICATION_JSON)
   public Uni<List<Flight>> findPricesByTripClass(@QueryParam("tripClass") String tripClass) {
     return flightService.findPricesByTripClass(tripClass);
   }
+
   @GET
   @Path("/cheapest-flights")
   public Uni<List<Flight>> getCheapestFlights() {
     return flightService.getCheapestFlights();
   }
 }
-
-
-
