@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.flighApp.Flight.dto.FlightDto;
+import org.flighApp.Flight.dto.TripClassPricesDto;
 import org.flighApp.Flight.models.*;
 import org.flighApp.mongoDb.MongoDB;
 import org.flighApp.mongoDb.MongoDbUtil;
@@ -30,7 +31,8 @@ public class FlightRepository {
   }
 
   public Uni<List<Flight>> findAll() {
-    return getFlightsCollection().find().collect().asList();
+    return MongoDbUtil.findAll(getFlightsCollection());
+    // getFlightsCollection().find().collect().asList();
   }
 
   public Uni<Void> insert(FlightDto flight) {
@@ -67,10 +69,10 @@ public class FlightRepository {
         Filters.and(
             originCodeFilter, destinationCodeFilter, departureDateFilter, availableSeatsFilter);
 
-    return MongoDbUtil.exists(getFlightsCollection(),finalFilter);
+    return MongoDbUtil.exists(getFlightsCollection(), finalFilter);
   }
 
-  public Uni<List<Flight>> findPricesByTripClass() {
+  public Uni<List<TripClassPricesDto>> allFlightsGroupByTripClass() {
     return getFlightsCollection()
         .aggregate(
             List.of(
@@ -85,96 +87,21 @@ public class FlightRepository {
                         .append("localField", "_id")
                         .append("foreignField", "tripClass")
                         .append("as", "flights")),
-                new Document("$project", new Document("flights", 1L))))
+                new Document(
+                    "$project",
+                    new Document("tripClass", "$_id")
+                        .append("flights", "$flights")
+                        .append("_id", 0) // <-- korrigjuar
+                    )),
+            TripClassPricesDto.class)
         .collect()
         .asList();
   }
 
-  //    public Uni<List<Flight>> findFlightsByTripType(SearchFlight request) {
-  //
-  //        List<Document> departureDoc = Arrays.asList(
-  //                new Document("$match",
-  //                new Document("originCode", request.getOriginCode())
-  //                        .append("destinationCode", request.getDestinationCode())
-  //                        .append("departureDate", request.getDepartureDate())));
-  //
-  //        if(request.getTicketType().equalsIgnoreCase("return")) {
-  //            List<Document> returnDoc = Arrays.asList(
-  //                    new Document("$match",
-  //                            new Document("originCode", request.getDestinationCode())
-  //                                    .append("destinationCode", request.getOriginCode())
-  //                                    .append("departureDate", request.getDepartureDate())
-  //                                    .append("returnDate", request.getReturnDate()))
-  //            );
-  //
-  //            Uni<List<Flight>> departureFlights = getFlightsCollection()
-  //                    .aggregate(departureDoc)
-  //                    .collect()
-  //                    .asList();
-  //
-  //            Uni<List<Flight>> returnFlights = getFlightsCollection()
-  //                    .aggregate(returnDoc)
-  //                    .collect()
-  //                    .asList();
-  //
-  //            return Uni.combine().all().unis(departureFlights, returnFlights)
-  //                    .with((dep, ret) -> {
-  //                        List<Flight> all = new ArrayList<>();
-  //                        all.addAll(dep);
-  //                        all.addAll(ret);
-  //                        return all;
-  //                    });
-  //        }
-  //        else{
-  //            return getFlightsCollection()
-  //                    .aggregate(departureDoc)
-  //                    .collect()
-  //                    .asList();
-  //        }
-  //
-  //    }
-
-  //    public Uni<List<SearchResultDto>> findByTripType(SearchFlight search) {
-  //        Document departureFilter = new Document();
-  //
-  //        departureFilter.append("originCode", search.getOriginCode());
-  //        departureFilter.append("destinationCode", search.getDestinationCode());
-  //        departureFilter.append("departureDate", search.getDepartureDate());
-  //
-  //        Uni<List<Flight>> departureFlights = getFlightsCollection()
-  //                .find(departureFilter)
-  //                .collect()
-  //                .asList();
-  //
-  //        if ("return".equalsIgnoreCase(search.getTicketType())) {
-  //            Document returnFilter = new Document();
-  //
-  //            returnFilter.append("originCode", search.getDestinationCode());
-  //            returnFilter.append("destinationCode", search.getOriginCode());
-  //            returnFilter.append("departureDate", search.getDepartureDate());
-  //
-  //            Uni<List<Flight>> returnFlights = getFlightsCollection()
-  //                    .find(returnFilter)
-  //                    .collect()
-  //                    .asList();
-  //
-  //
-  //            return Uni.combine().all().unis(departureFlights, returnFlights)
-  //                    .with((dep, ret) -> {
-  //                        SearchResultDto result = new SearchResultDto();
-  //                        result.setDepartureFlights(dep);
-  //                        result.setReturnFlights(ret);
-  //                        return List.of(result);
-  //                    });
-  //        } else {
-  //            return departureFlights.map(flights -> {
-  //                SearchResultDto result = new SearchResultDto();
-  //                result.setDepartureFlights(flights);
-  //                result.setReturnFlights(Collections.emptyList());
-  //                return List.of(result);
-  //            });
-  //        }
-  //    }
+  public Uni<List<Flight>> findPricesByTripClass(String tripClass) {
+    Bson filter = Filters.eq(Flight.Fields.tripClass, tripClass);
+    return MongoDbUtil.find(getFlightsCollection(),filter);
+  }
 
   public Uni<List<Flight>> searchFlight(String originCode, String destinationCode) {
     Document doc = new Document();
@@ -192,5 +119,13 @@ public class FlightRepository {
         .aggregate(List.of(new Document("$match", doc)))
         .collect()
         .asList();
+  }
+
+  public Uni<List<Flight>> getCheapestFlights() {
+    List<Bson> pipeline =
+            List.of(new Document("$sort",
+                    new Document("priceForOneWay", 1L)));
+
+    return MongoDbUtil.aggregate(getFlightsCollection(), pipeline);
   }
 }

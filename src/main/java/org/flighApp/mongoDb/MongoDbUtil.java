@@ -1,10 +1,13 @@
 package org.flighApp.mongoDb;
 
+import com.mongodb.client.model.Sorts;
 import io.quarkus.mongodb.reactive.ReactiveMongoCollection;
 import io.smallrye.mutiny.Uni;
 import java.util.List;
 import org.bson.conversions.Bson;
 import org.flighApp.utils.Utils;
+
+import javax.swing.*;
 
 public class MongoDbUtil {
 
@@ -22,7 +25,12 @@ public class MongoDbUtil {
     return collection.find(filter).collect().asList();
   }
 
-  public static <T> Uni<Boolean> exists(ReactiveMongoCollection<T> collection, Bson filter) {
+  public static <T> Uni<List<T>> findAll(ReactiveMongoCollection<T> collection) {
+    return collection.find().collect().asList();
+  }
+
+  public static <T> Uni<Boolean> exists(ReactiveMongoCollection<T> collection, Bson filter, Sorts sort) {
     return collection.find(filter).collect().asList().map(Utils::notNull);
   }
+
 }

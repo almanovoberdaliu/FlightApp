@@ -5,6 +5,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;
 import org.flighApp.Flight.dto.FlightDto;
+import org.flighApp.Flight.dto.TripClassPricesDto;
 import org.flighApp.Flight.models.*;
 import org.flighApp.Flight.repo.FlightRepository;
 
@@ -29,23 +30,21 @@ public class FlightService {
     return flightRepository.searchFlight(originCode, destinationCode);
   }
 
-  public Uni<Integer> getTotalPassengers(SearchFlight request) {
-    return flightRepository.getTotalPassengers(request);
-  }
 
   public Uni<Boolean> getAvailableSeats(SearchFlight request) {
     return flightRepository.getAvailableSeats(request);
   }
 
-  //    public Uni<List<Flight>> findFlightsByTripType(SearchFlight request) {
-  //        return flightRepository.findFlightsByTripType(request);
-  //    }
-  //
-  //    public Uni<List<SearchResultDto>> findByTripType(SearchFlight search) {
-  //        return flightRepository.findByTripType(search);
-  //    }
 
-  public Uni<List<Flight>> findPricesByTripClass() {
-    return flightRepository.findPricesByTripClass();
+  public Uni<List<TripClassPricesDto>> allFlightsGroupByTripClass() {
+    return flightRepository.allFlightsGroupByTripClass();
+  }
+
+  public Uni<List<Flight>> findPricesByTripClass(String tripClass) {
+    return flightRepository.findPricesByTripClass(tripClass);
+  }
+
+  public Uni<List<Flight>> getCheapestFlights() {
+    return flightRepository.getCheapestFlights();
   }
 }
