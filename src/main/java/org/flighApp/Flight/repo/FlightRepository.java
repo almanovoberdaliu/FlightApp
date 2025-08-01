@@ -6,6 +6,7 @@ import io.quarkus.mongodb.reactive.ReactiveMongoCollection;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.bson.Document;
@@ -15,9 +16,6 @@ import org.flighApp.Flight.dto.TripClassPricesDto;
 import org.flighApp.Flight.models.*;
 import org.flighApp.mongoDb.MongoDB;
 import org.flighApp.mongoDb.MongoDbUtil;
-import org.flighApp.utils.Utils;
-
-import java.util.List;
 
 @ApplicationScoped
 @AllArgsConstructor
@@ -31,7 +29,7 @@ public class FlightRepository {
   }
 
   public Uni<List<Flight>> findAll() {
-    return MongoDbUtil.findAll(getFlightsCollection());
+    return MongoDbUtil.find(getFlightsCollection());
     // getFlightsCollection().find().collect().asList();
   }
 
@@ -40,14 +38,9 @@ public class FlightRepository {
   }
 
   public Uni<Void> insert(FlightDto flight) {
-    return getFlightsCollection()
-        .insertOne(flight)
-        .onFailure()
-        .invoke(
-            t -> {
-              Log.info("Gabim gjate insertimit: " + t.getMessage());
-            })
-        .replaceWithVoid();
+    return MongoDbUtil.insertOne(getFlightsCollection(), flight)
+            .invoke(() -> Log.info("Flight inserted successfully"))
+            .onFailure().invoke(error -> Log.error("Insertion failed", error));
   }
 
   public Uni<List<Flight>> searchFlightByOriginCode(String keyword) {

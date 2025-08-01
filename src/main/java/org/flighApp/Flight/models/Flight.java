@@ -12,6 +12,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Getter
 @Setter
+@FieldNameConstants
 public class Flight {
   // this is built behind the scenes via @FieldsNameAndConstants
   //    public static final class Fields{

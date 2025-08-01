@@ -16,8 +16,6 @@ import org.flighApp.utils.Utils;
 @Getter
 @Setter
 public class PaginationParams {
-  private int page;
-  private int size;
   private int limit;
   private int skip;
   private String field;
@@ -31,14 +29,19 @@ public class PaginationParams {
             ? Sorts.ascending(sortField)
             : Sorts.descending(sortField));
 
-    FindOptions options = new FindOptions().skip(page * size).limit(size).sort(sort);
+    int limitBy = (limit > 0) ? limit : 10;
+    int skipBy = Math.max(skip, 0);
+
+    FindOptions options = new FindOptions()
+            .limit(limitBy)
+            .skip(skipBy)
+            .sort(sort);
 
     if (Utils.notNull(selectedFields) && !selectedFields.isEmpty()) {
       Document projection = new Document();
       selectedFields.forEach(field -> projection.append(field, 1));
       options.projection(projection);
     }
-
     return options;
   }
 }
