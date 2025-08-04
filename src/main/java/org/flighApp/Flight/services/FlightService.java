@@ -4,7 +4,7 @@ import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;
-import org.flighApp.Flight.dto.FlightDto;
+//import org.flighApp.Flight.dto.FlightDto;
 import org.flighApp.Flight.dto.TripClassPricesDto;
 import org.flighApp.Flight.models.*;
 import org.flighApp.Flight.repo.FlightRepository;
@@ -18,7 +18,7 @@ public class FlightService {
     return flightRepository.findAll();
   }
 
-  public Uni<Void> addFlight(FlightDto flight) {
+  public Uni<Void> addFlight(Flight flight) {
     return flightRepository.insert(flight);
   }
 
@@ -49,4 +49,6 @@ public class FlightService {
   public Uni<List<Flight>> find(PaginationParams params) {
     return flightRepository.find(params);
   }
+
+
 }

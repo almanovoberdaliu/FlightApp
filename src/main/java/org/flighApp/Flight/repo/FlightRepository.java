@@ -11,7 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.flighApp.Flight.dto.FlightDto;
+//import org.flighApp.Flight.dto.FlightDto;
 import org.flighApp.Flight.dto.TripClassPricesDto;
 import org.flighApp.Flight.models.*;
 import org.flighApp.mongoDb.MongoDB;
@@ -37,10 +37,11 @@ public class FlightRepository {
     return MongoDbUtil.find(getFlightsCollection(), params);
   }
 
-  public Uni<Void> insert(FlightDto flight) {
+  public Uni<Void> insert(Flight flight) {
     return MongoDbUtil.insertOne(getFlightsCollection(), flight)
-            .invoke(() -> Log.info("Flight inserted successfully"))
-            .onFailure().invoke(error -> Log.error("Insertion failed", error));
+        .invoke(() -> Log.info("Flight inserted successfully"))
+        .onFailure()
+        .invoke(error -> Log.error("Insertion failed", error));
   }
 
   public Uni<List<Flight>> searchFlightByOriginCode(String keyword) {
@@ -60,11 +61,16 @@ public class FlightRepository {
     Bson destinationCodeFilter =
         Filters.eq(Flight.Fields.destinationCode, request.getDestinationCode());
     Bson departureDateFilter = Filters.eq(Flight.Fields.departureDate, request.getDepartureDate());
-    Bson availableSeatsFilter =
-        Filters.gte(Flight.Fields.availableSeats, request.getPassengersCount());
+    Bson seatsFilter = Filters.elemMatch(
+            Flight.Fields.seatsList,
+            Filters.and(
+                    Filters.eq("tripClass", request.getTripClass()),
+                    Filters.gte("availableSeats", request.getPassengersCount())
+            )
+    );
     Bson finalFilter =
         Filters.and(
-            originCodeFilter, destinationCodeFilter, departureDateFilter, availableSeatsFilter);
+            originCodeFilter, destinationCodeFilter, departureDateFilter,seatsFilter);
 
     return MongoDbUtil.exists(getFlightsCollection(), finalFilter);
   }
@@ -88,15 +94,15 @@ public class FlightRepository {
                     "$project",
                     new Document("tripClass", "$_id")
                         .append("flights", "$flights")
-                        .append("_id", 0) // <-- korrigjuar
-                    )),
+                        .append("_id", 0))),
             TripClassPricesDto.class)
         .collect()
         .asList();
   }
 
   public Uni<List<Flight>> findPricesByTripClass(String tripClass) {
-    Bson filter = Filters.eq(Flight.Fields.tripClass, tripClass);
+    Bson filter =
+        Filters.elemMatch(Flight.Fields.seatsList, Filters.eq("tripClass", tripClass));
     return MongoDbUtil.find(getFlightsCollection(), filter);
   }
 
@@ -120,7 +126,7 @@ public class FlightRepository {
 
   public Uni<List<Flight>> getCheapestFlights() {
     List<Bson> pipeline = List.of(new Document("$sort", new Document("priceForOneWay", 1L)));
-
     return MongoDbUtil.aggregate(getFlightsCollection(), pipeline);
   }
+
 }

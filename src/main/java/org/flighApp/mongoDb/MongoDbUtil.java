@@ -40,7 +40,10 @@ public class MongoDbUtil {
   }
 
   public static <T> Uni<Boolean> exists(ReactiveMongoCollection<T> collection, Bson filter) {
-    return collection.find(filter).collect().asList().map(Utils::notNull);
+    return collection
+            .find(filter)
+            .collect().asList()
+            .map(list -> !list.isEmpty());
   }
 
   public static <T> Uni<Void> insertOne(ReactiveMongoCollection<T> collection, T document) {

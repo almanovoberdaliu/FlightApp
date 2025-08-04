@@ -5,7 +5,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import java.util.List;
-import org.flighApp.Flight.dto.FlightDto;
+//import org.flighApp.Flight.dto.FlightDto;
 import org.flighApp.Flight.dto.TripClassPricesDto;
 import org.flighApp.Flight.models.Flight;
 import org.flighApp.Flight.models.PaginationParams;
@@ -27,7 +27,7 @@ public class FlightResource {
   @POST
   @Path("/add")
   @Consumes(MediaType.APPLICATION_JSON)
-  public Uni<Void> addFlight(FlightDto flight) {
+  public Uni<Void> addFlight(Flight flight) {
     return flightService.addFlight(flight);
   }
 
