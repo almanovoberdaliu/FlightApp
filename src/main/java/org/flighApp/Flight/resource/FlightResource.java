@@ -4,8 +4,12 @@ import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import java.util.Date;
 import java.util.List;
-//import org.flighApp.Flight.dto.FlightDto;
+
+import org.bson.types.ObjectId;
+import org.flighApp.Flight.dto.FlightDto;
+import org.flighApp.Flight.dto.TopDestinationsDto;
 import org.flighApp.Flight.dto.TripClassPricesDto;
 import org.flighApp.Flight.models.Flight;
 import org.flighApp.Flight.models.PaginationParams;
@@ -19,8 +23,7 @@ public class FlightResource {
 
   @GET
   @Path("/get")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Uni<List<Flight>> getFlights() {
+  public Uni<List<FlightDto>> getFlights() {
     return flightService.getAllFlights();
   }
 
@@ -33,15 +36,13 @@ public class FlightResource {
 
   @GET
   @Path("/getByOriginCode")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Uni<List<Flight>> getFlightsByOriginCode(@QueryParam("keyword") String keyword) {
+  public Uni<List<FlightDto>> getFlightsByOriginCode(@QueryParam("keyword") String keyword) {
     return flightService.getFlightsByOriginCode(keyword);
   }
 
   @GET
   @Path("/search")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Uni<List<Flight>> searchFlight(
+  public Uni<List<FlightDto>> searchFlight(
       @QueryParam("originCode") String originCode,
       @QueryParam("destinationCode") String destinationCode) {
     return flightService.searchFlight(originCode, destinationCode);
@@ -64,7 +65,6 @@ public class FlightResource {
   @POST
   @Path("/available")
   @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
   public Uni<Boolean> getAvailableSeats(SearchFlight request) {
     return flightService.getAvailableSeats(request);
   }
@@ -87,15 +87,13 @@ public class FlightResource {
 
   @GET
   @Path("/all-flights-group-by-tripClass")
-  @Produces(MediaType.APPLICATION_JSON)
   public Uni<List<TripClassPricesDto>> allFlightsGroupByTripClass() {
     return flightService.allFlightsGroupByTripClass();
   }
 
   @GET
   @Path("/prices-by-trip-class")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Uni<List<Flight>> findPricesByTripClass(@QueryParam("tripClass") String tripClass) {
+  public Uni<List<Flight>> findPricesByTripClass(@QueryParam("tripClass") int tripClass) {
     return flightService.findPricesByTripClass(tripClass);
   }
 
@@ -104,4 +102,36 @@ public class FlightResource {
   public Uni<List<Flight>> getCheapestFlights() {
     return flightService.getCheapestFlights();
   }
+
+  @GET
+  @Path("/get-flight-by-date")
+  public Uni<List<Flight>> getFlightsByDepartureDate(@QueryParam("departureDate") String departureDate) {
+    return flightService.getFlightsByDepartureDate(departureDate);
+  }
+
+  @GET
+  @Path("/get-top-destinations")
+  public Uni<List<TopDestinationsDto>> getTopDestinations(){
+    return flightService.getTopDestinations();
+  }
+
+  @GET
+  @Path("/get-flights-under-price")
+  public Uni<List<Flight>> getFlightsUnderPrice(@QueryParam("price") double price){
+    return flightService.getFlightsUnderPrice(price);
+  }
+
+  @POST
+  @Path("/cancel-flight")
+  public Uni<Void> cancelFlight(@QueryParam("flightId") ObjectId flightId,
+                                @QueryParam("status") String status){
+    return flightService.cancelFlight(flightId, status);
+  }
+
+  @POST
+  @Path("/search-flights")
+  public Uni<List<FlightDto>> searchFlight(SearchFlight request) {
+    return flightService.searchFlight(request);
+  }
+
 }

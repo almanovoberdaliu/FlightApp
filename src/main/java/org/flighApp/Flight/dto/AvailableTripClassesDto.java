@@ -1,9 +1,10 @@
-package org.flighApp.Flight.models;
+package org.flighApp.Flight.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.flighApp.Flight.models.TripClass;
 
 import java.util.List;
 
@@ -11,7 +12,6 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SearchResultDto {
-    private List<Flight> departureFlights;
-    private List<Flight> returnFlights;
+public class AvailableTripClassesDto {
+    private List<TripClass> tripClasses;
 }

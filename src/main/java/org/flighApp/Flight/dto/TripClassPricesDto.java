@@ -14,5 +14,5 @@ import java.util.List;
 @NoArgsConstructor
 public class TripClassPricesDto {
     private String tripClass;
-    private List<Flight> flights;
+    private List<FlightDto> flights;
 }

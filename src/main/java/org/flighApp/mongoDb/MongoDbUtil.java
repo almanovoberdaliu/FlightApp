@@ -21,8 +21,16 @@ public class MongoDbUtil {
     return collection.aggregate(pipeline, clazz).collect().asList();
   }
 
+  public static <T,Z> Uni<List<Z>> find(ReactiveMongoCollection<T> collection, Class<Z> clazz) {
+    return collection.find(clazz).collect().asList();
+  }
+
   public static <T> Uni<List<T>> find(ReactiveMongoCollection<T> collection, Bson filter) {
     return collection.find(filter).collect().asList();
+  }
+
+  public static <T,Z> Uni<List<Z>> find(ReactiveMongoCollection<T> collection, Bson filter, Class<Z> clazz) {
+    return collection.find(filter,clazz).collect().asList();
   }
 
   public static <T> Uni<T> findFirst(ReactiveMongoCollection<T> collection, Bson filter) {
@@ -81,6 +89,17 @@ public class MongoDbUtil {
                     .updateOne(filter, update, options)
                     .flatMap(upsertResult -> findFirst(collection, filter));
               }
+            });
+  }
+  public static Uni<Void> updateOneNoUpsert(
+          ReactiveMongoCollection<?> collection, Bson filter, Bson update) {
+    return collection
+            .updateOne(filter, update)
+            .map(result -> {
+              if (result.getModifiedCount() == 0) {
+                throw new RuntimeException("No flight found with id: " + filter);
+              }
+              return null;
             });
   }
 
