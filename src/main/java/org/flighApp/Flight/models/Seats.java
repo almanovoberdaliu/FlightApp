@@ -12,6 +12,10 @@ import lombok.experimental.FieldNameConstants;
 @Setter
 @FieldNameConstants
 public class Seats {
-    private int tripClass;
+    private TripClass tripClass;
     private int availableSeats;
+
+//    public TripClass getTripClass() {
+//        return TripClass.fromId(this.tripClass);
+//    }
 }

@@ -20,4 +20,5 @@ public class FlightDto {
     private Double priceForReturn;
     private Date returnDate;
     private String duration;
+    private Double totalPrice;
 }

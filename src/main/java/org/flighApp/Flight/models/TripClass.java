@@ -1,16 +1,34 @@
 package org.flighApp.Flight.models;
 
-import io.quarkus.arc.All;
+import java.util.Arrays;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
 @AllArgsConstructor
-@NoArgsConstructor
-public class TripClass {
-    private int id;
-    private String type;
+public enum TripClass {
+  ECONOMY(1, "Economy", 0.0),
+  BUSINESS(2, "Business", 100.0),
+  FIRST(3, "First", 200.0);
+
+  private final int id;
+  private final String type;
+  private final double price;
+
+  public static double getPriceById(int id) {
+    return Arrays.stream(values())
+        .filter(t -> t.id == id)
+        .findFirst()
+        .map(TripClass::getPrice)
+        .orElse(0.0);
+  }
+
+  public static TripClass fromId(int id) {
+    for (TripClass t : values()) {
+      if (t.id == id) {
+        return t;
+      }
+    }
+    throw new IllegalArgumentException("Invalid trip class ID: " + id);
+  }
 }

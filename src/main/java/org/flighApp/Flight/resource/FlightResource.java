@@ -41,7 +41,7 @@ public class FlightResource {
   }
 
   @GET
-  @Path("/search")
+  @Path("/search-by-origin-and-destinacion-codes")
   public Uni<List<FlightDto>> searchFlight(
       @QueryParam("originCode") String originCode,
       @QueryParam("destinationCode") String destinationCode) {
@@ -54,36 +54,13 @@ public class FlightResource {
     return flightService.find(params);
   }
 
-  //  @POST
-  //  @Path("/total")
-  //  @Consumes(MediaType.APPLICATION_JSON)
-  //  @Produces(MediaType.APPLICATION_JSON)
-  //  public Uni<Integer> getTotalPassengers(SearchFlight request) {
-  //    return flightService.getTotalPassengers(request);
-  //  }
-
+  // metod palidhje qe svyn sen
   @POST
   @Path("/available")
   @Consumes(MediaType.APPLICATION_JSON)
   public Uni<Boolean> getAvailableSeats(SearchFlight request) {
     return flightService.getAvailableSeats(request);
   }
-
-  //    @POST
-  //    @Path("/tripType")
-  //    @Consumes(MediaType.APPLICATION_JSON)
-  //    @Produces(MediaType.APPLICATION_JSON)
-  //    public Uni<List<Flight>> findFlightsByTripType(SearchFlight request) {
-  //        return flightService.findFlightsByTripType(request);
-  //    }
-
-  //    @POST
-  //    @Path("/tripType")
-  //    @Consumes(MediaType.APPLICATION_JSON)
-  //    @Produces(MediaType.APPLICATION_JSON)
-  //    public Uni<List<SearchResultDto>> findByTripType(SearchFlight search) {
-  //        return flightService.findByTripType(search);
-  //    }
 
   @GET
   @Path("/all-flights-group-by-tripClass")
@@ -93,7 +70,7 @@ public class FlightResource {
 
   @GET
   @Path("/prices-by-trip-class")
-  public Uni<List<Flight>> findPricesByTripClass(@QueryParam("tripClass") int tripClass) {
+  public Uni<List<Flight>> findPricesByTripClass(@QueryParam("tripClass") String tripClass) {
     return flightService.findPricesByTripClass(tripClass);
   }
 
@@ -128,10 +105,17 @@ public class FlightResource {
     return flightService.cancelFlight(flightId, status);
   }
 
+  // search pa e kalkulu cmimin total
   @POST
   @Path("/search-flights")
   public Uni<List<FlightDto>> searchFlight(SearchFlight request) {
     return flightService.searchFlight(request);
+  }
+
+  @POST
+  @Path("/search-and-calculate")
+  public Uni<List<FlightDto>> searchAndCalculateTotalPrice(SearchFlight request) {
+    return flightService.searchAndCalculateTotalPrice(request);
   }
 
 }

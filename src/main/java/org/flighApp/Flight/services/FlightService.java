@@ -4,16 +4,17 @@ import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import jakarta.ws.rs.NotFoundException;
 import org.bson.types.ObjectId;
-import org.flighApp.Flight.dto.AvailableTripClassesDto;
 import org.flighApp.Flight.dto.FlightDto;
 import org.flighApp.Flight.dto.TopDestinationsDto;
 import org.flighApp.Flight.dto.TripClassPricesDto;
 import org.flighApp.Flight.models.*;
 import org.flighApp.Flight.repo.FlightRepository;
+import org.flighApp.utils.Utils;
 
 @ApplicationScoped
 public class FlightService {
@@ -44,7 +45,7 @@ public class FlightService {
     return flightRepository.allFlightsGroupByTripClass();
   }
 
-  public Uni<List<Flight>> findPricesByTripClass(int tripClass) {
+  public Uni<List<Flight>> findPricesByTripClass(String tripClass) {
     return flightRepository.findPricesByTripClass(tripClass);
   }
 
@@ -60,15 +61,15 @@ public class FlightService {
     return flightRepository.getFlightsByDepartureDate(departureDate);
   }
 
-  public Uni<List<TopDestinationsDto>> getTopDestinations(){
+  public Uni<List<TopDestinationsDto>> getTopDestinations() {
     return flightRepository.getTopDestinations();
   }
 
-  public Uni<List<Flight>> getFlightsUnderPrice(double price){
+  public Uni<List<Flight>> getFlightsUnderPrice(double price) {
     return flightRepository.getFlightsUnderPrice(price);
   }
 
-  public Uni<Void> cancelFlight(ObjectId flightId, String status){
+  public Uni<Void> cancelFlight(ObjectId flightId, String status) {
     return flightRepository.cancelFlight(flightId, status);
   }
 
@@ -76,4 +77,35 @@ public class FlightService {
     return flightRepository.searchFlight(request);
   }
 
+  public Uni<List<FlightDto>> searchAndCalculateTotalPrice(SearchFlight request) {
+    return flightRepository
+        .searchFlight(request)
+        .onItem()
+        .transform(
+            flights -> {
+              if (Utils.isNull(flights) || flights.isEmpty()) {
+                throw new NotFoundException("Flight not found");
+              }
+
+              return flights.stream()
+                  .peek(
+                      flight -> {
+                        double ticketPrice =
+                            "return".equalsIgnoreCase(request.getTicketType())
+                                ? flight.getPriceForReturn() + flight.getPriceForOneWay()
+                                : flight.getPriceForOneWay();
+
+                        int passengerCount = request.getPassengersCount();
+
+                        double bagTotal = request.getBags().stream()
+                                .mapToDouble(Bag::getTotalPrice)
+                                .sum();
+
+                        double total = (ticketPrice * passengerCount) + bagTotal;
+                        flight.setTotalPrice(total);
+                      })
+
+                  .collect(Collectors.toList());
+            });
+  }
 }

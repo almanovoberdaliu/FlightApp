@@ -7,8 +7,6 @@ import io.quarkus.mongodb.reactive.ReactiveMongoCollection;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import java.util.Collections;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -42,7 +40,6 @@ public class FlightRepository {
     return MongoDbUtil.find(getFlightsCollection(), params);
   }
 
-
   public Uni<Void> insert(Flight flight) {
     return MongoDbUtil.insertOne(getFlightsCollection(), flight)
         .invoke(() -> Log.info("Flight inserted successfully"))
@@ -73,7 +70,7 @@ public class FlightRepository {
         Filters.elemMatch(
             Flight.Fields.seatsList,
             Filters.and(
-                Filters.eq("tripClass", request.getTripClass()),
+                    Filters.eq("tripClass", request.getTripClass().name()),
                 Filters.gte("availableSeats", request.getPassengersCount())));
 
     Bson finalFilter =
@@ -88,30 +85,28 @@ public class FlightRepository {
   }
 
   public Uni<List<FlightDto>> searchFlight(SearchFlight request) {
-                Bson originCodeFilter =
-                    Filters.eq(Flight.Fields.originCode, request.getOriginCode());
-                Bson destinationCodeFilter =
-                    Filters.eq(Flight.Fields.destinationCode, request.getDestinationCode());
-                Bson departureDateFilter =
-                    Filters.eq(Flight.Fields.departureDate, request.getDepartureDate());
-                Bson statusFilter = Filters.eq(Flight.Fields.status, "available");
-                Bson seatsFilter =
-                    Filters.elemMatch(
-                        Flight.Fields.seatsList,
-                        Filters.and(
-                            Filters.eq("tripClass", request.getTripClass()),
-                            Filters.gte("availableSeats", request.getPassengersCount())));
+    Bson originCodeFilter = Filters.eq(Flight.Fields.originCode, request.getOriginCode());
+    Bson destinationCodeFilter =
+        Filters.eq(Flight.Fields.destinationCode, request.getDestinationCode());
+    Bson departureDateFilter = Filters.eq(Flight.Fields.departureDate, request.getDepartureDate());
+    Bson statusFilter = Filters.eq(Flight.Fields.status, "available");
+    Bson seatsFilter =
+        Filters.elemMatch(
+            Flight.Fields.seatsList,
+            Filters.and(
+                Filters.eq("tripClass", request.getTripClass().name()),
+                Filters.gte("availableSeats", request.getPassengersCount())));
 
-                Bson finalFilter =
-                    Filters.and(
-                        originCodeFilter,
-                        destinationCodeFilter,
-                        departureDateFilter,
-                        seatsFilter,
-                        statusFilter);
+    Bson finalFilter =
+        Filters.and(
+            originCodeFilter,
+            destinationCodeFilter,
+            departureDateFilter,
+            seatsFilter,
+            statusFilter);
 
-                return MongoDbUtil.find(getFlightsCollection(), finalFilter, FlightDto.class);
-            };
+    return MongoDbUtil.find(getFlightsCollection(), finalFilter, FlightDto.class);
+  }
 
   public Uni<List<TripClassPricesDto>> allFlightsGroupByTripClass() {
     return getFlightsCollection()
@@ -133,7 +128,7 @@ public class FlightRepository {
         .asList();
   }
 
-  public Uni<List<Flight>> findPricesByTripClass(int tripClass) {
+  public Uni<List<Flight>> findPricesByTripClass(String tripClass) {
     Bson filter = Filters.elemMatch(Flight.Fields.seatsList, Filters.eq("tripClass", tripClass));
     return MongoDbUtil.find(getFlightsCollection(), filter);
   }
@@ -184,7 +179,7 @@ public class FlightRepository {
 
   public Uni<Void> cancelFlight(ObjectId flightId, String status) {
     Bson filter = Filters.eq("_id", flightId);
-    Bson update = Updates.set("status", status);
+    Bson update = Updates.set(Flight.Fields.status, status);
     return MongoDbUtil.updateOne(getFlightsCollection(), filter, update).replaceWithVoid();
   }
 }

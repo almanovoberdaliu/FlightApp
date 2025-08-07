@@ -17,12 +17,29 @@ public class SearchFlight {
   private String destinationCode;
   private Date departureDate;
   private Date returnDate;
-  private int tripClass;
+  private TripClass tripClass;
   private List<PassengersByType> passengerList;
-  private List<Bags> bags;
+  private List<Bag> bags;
+
 
   public Integer getPassengersCount() {
     return Utils.nullSafe(passengerList).stream().mapToInt(PassengersByType::getNumber).sum();
   }
+
+//  public Double getBagPrice() {
+//    return Utils.nullSafe(bags)
+//            .stream()
+//            .mapToDouble(b -> b.getNumber() * b.getPrice())
+//            .sum();
+//  }
+
+//  public TripClass getTripClass() {
+//    return TripClass.fromId(this.tripClass);
+//  }
+
+  public Double getTripClassPrice() {
+    return getTripClass().getPrice();
+  }
+
 
 }

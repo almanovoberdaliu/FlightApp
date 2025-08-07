@@ -10,6 +10,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PassengersByType {
-    private String type;
+    private PassengerType type;
     private int number;
 }
