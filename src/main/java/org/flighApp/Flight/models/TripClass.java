@@ -23,12 +23,4 @@ public enum TripClass {
         .orElse(0.0);
   }
 
-  public static TripClass fromId(int id) {
-    for (TripClass t : values()) {
-      if (t.id == id) {
-        return t;
-      }
-    }
-    throw new IllegalArgumentException("Invalid trip class ID: " + id);
-  }
 }

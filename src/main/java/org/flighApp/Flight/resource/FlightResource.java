@@ -14,12 +14,23 @@ import org.flighApp.Flight.dto.TripClassPricesDto;
 import org.flighApp.Flight.models.Flight;
 import org.flighApp.Flight.models.PaginationParams;
 import org.flighApp.Flight.models.SearchFlight;
+import org.flighApp.Flight.repo.RandomFlightRepository;
 import org.flighApp.Flight.services.FlightService;
 
 @Path("/flights")
 public class FlightResource {
 
   @Inject FlightService flightService;
+
+  @Inject
+  RandomFlightRepository randomFlightService;
+
+
+  @GET
+  @Path("/getRandomFlightService")
+  public Uni<List<Flight>> getRandomFlightService() {
+    return randomFlightService.getAllRandomFlights();
+  }
 
   @GET
   @Path("/get")

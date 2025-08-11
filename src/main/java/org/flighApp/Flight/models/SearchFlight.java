@@ -26,20 +26,6 @@ public class SearchFlight {
     return Utils.nullSafe(passengerList).stream().mapToInt(PassengersByType::getNumber).sum();
   }
 
-//  public Double getBagPrice() {
-//    return Utils.nullSafe(bags)
-//            .stream()
-//            .mapToDouble(b -> b.getNumber() * b.getPrice())
-//            .sum();
-//  }
-
-//  public TripClass getTripClass() {
-//    return TripClass.fromId(this.tripClass);
-//  }
-
-  public Double getTripClassPrice() {
-    return getTripClass().getPrice();
-  }
 
 
 }

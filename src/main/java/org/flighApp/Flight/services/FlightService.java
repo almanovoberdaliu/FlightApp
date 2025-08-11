@@ -14,6 +14,7 @@ import org.flighApp.Flight.dto.TopDestinationsDto;
 import org.flighApp.Flight.dto.TripClassPricesDto;
 import org.flighApp.Flight.models.*;
 import org.flighApp.Flight.repo.FlightRepository;
+import org.flighApp.mongoDb.MongoDbUtil;
 import org.flighApp.utils.Utils;
 
 @ApplicationScoped
@@ -108,4 +109,5 @@ public class FlightService {
                   .collect(Collectors.toList());
             });
   }
+
 }
