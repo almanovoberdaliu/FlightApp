@@ -70,7 +70,7 @@ public class FlightRepository {
         Filters.elemMatch(
             Flight.Fields.seatsList,
             Filters.and(
-                    Filters.eq("tripClass", request.getTripClass().name()),
+                Filters.eq("tripClass", request.getTripClass().name()),
                 Filters.gte("availableSeats", request.getPassengersCount())));
 
     Bson finalFilter =

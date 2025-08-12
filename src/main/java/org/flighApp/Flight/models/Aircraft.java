@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Aircraft {
-    private int id;
-    private String model;
-    private String registration;
+  private int id;
+  private String model;
+  private String registration;
 }

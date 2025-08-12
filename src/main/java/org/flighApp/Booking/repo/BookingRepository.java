@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 import org.flighApp.Booking.models.Booking;
 import org.flighApp.Booking.models.BookingStatus;
 import org.flighApp.Flight.models.Flight;
@@ -34,7 +35,8 @@ public class BookingRepository {
     return mongoRepository.getCollection("Flight", Flight.class);
   }
 
-  public Uni<Void> createBooking(Booking booking, int flightId) {
+  // duhet me kontrollu nese availableSeat eshte me e madhe se 0, per me kriju booking
+  public Uni<Void> createBooking(Booking booking, ObjectId flightId) {
     Bson filter = Filters.eq("_id", flightId);
     return MongoDbUtil.findFirst(getFlightsCollection(), filter)
         .onItem()
@@ -42,24 +44,69 @@ public class BookingRepository {
         .fail()
         .replaceWith("No flight found!!")
         .onItem()
-        .transformToUni(flight -> MongoDbUtil.insertOne(getBookingsCollection(), booking));
+        .transformToUni(
+            flight ->
+                MongoDbUtil.insertOne(getBookingsCollection(), booking)
+                    .chain(
+                        () -> {
+                          Bson seatFilter =
+                              Filters.and(
+                                  Filters.eq("_id", flightId),
+                                  Filters.eq("seatsList.tripClass", booking.getTripClass()));
+                          Bson seatUpdate =
+                              Updates.inc(
+                                  "seatsList.$.availableSeats", -booking.getTotalPassengers());
+
+                          return getFlightsCollection()
+                              .updateOne(seatFilter, seatUpdate)
+                              .replaceWithVoid();
+                        }));
   }
 
-  public Uni<Void> cancelBooking(int id) {
-    Bson filter = Filters.eq("id", id);
-    return MongoDbUtil.findFirst(getBookingsCollection(), filter)
-        .onItem()
-        .ifNotNull()
-        .transform(
-            booking -> {
-              if (booking.getStatus() != BookingStatus.COMPLETED) {
-                Bson update = Updates.set(Booking.Fields.status, BookingStatus.CANCELLED);
-                return MongoDbUtil.updateOne(getBookingsCollection(), filter, update);
-              }
-              return Uni.createFrom().voidItem();
-            })
-        .replaceWithVoid();
+  // duhet me kontrollu nese available seat eshte me e madhe se 0, per me leju me bo cancel
+    public Uni<String> cancelBooking(int id) {
+        Bson filter = Filters.eq("_id", id);
+        return MongoDbUtil.findFirst(getBookingsCollection(), filter)
+                .onItem()
+                .ifNotNull()
+                .transformToUni(
+                        booking -> {
+                            if (booking.getStatus() != BookingStatus.COMPLETED) {
+                                Bson update = Updates.set(Booking.Fields.status, BookingStatus.CANCELLED);
+                                return MongoDbUtil.updateOne(getBookingsCollection(), filter, update)
+                                        .chain(
+                                                () -> {
+                                                    Bson seatFilter =
+                                                            Filters.and(
+                                                                    Filters.eq("_id", booking.getFlightId()),
+                                                                    Filters.eq("seatsList.tripClass", booking.getTripClass()));
+
+                                                    Bson updateSeats =
+                                                            Updates.inc(
+                                                                    "seatsList.$.availableSeats", booking.getTotalPassengers());
+                                                    return MongoDbUtil.updateOne(getFlightsCollection(), seatFilter, updateSeats);
+                                                })
+                                        .replaceWith("Booking cancelled successfully.");
+                            }
+                            return Uni.createFrom().item("Booking is already completed, you cannot cancel it!!");
+                        })
+                .onItem()
+                .ifNull()
+                .continueWith("Booking not found");
+    }
+
+
+  public Uni<Void> confirmBooking(int id) {
+    Bson filter = Filters.eq("_id", id);
+    Bson update = Updates.set(Booking.Fields.status, BookingStatus.CONFIRMED);
+    return MongoDbUtil.updateOne(getBookingsCollection(), filter, update).replaceWithVoid();
   }
 
+  public Uni<Void> changeStatus(BookingStatus newStatus, int id) {
+    Bson filter = Filters.eq("_id", id);
+    Bson update = Updates.set(Booking.Fields.status, newStatus);
+
+    return MongoDbUtil.updateOne(getBookingsCollection(), filter, update).replaceWithVoid();
+  }
 
 }

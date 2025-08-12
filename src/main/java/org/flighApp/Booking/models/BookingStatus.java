@@ -6,8 +6,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum BookingStatus {
-    PENDING,
-    CONFIRMED,
-    CANCELLED,
-    COMPLETED,
+  PENDING,
+  CONFIRMED,
+  CANCELLED,
+  COMPLETED,
 }

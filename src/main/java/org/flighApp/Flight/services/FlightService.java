@@ -3,18 +3,15 @@ package org.flighApp.Flight.services;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
+import jakarta.ws.rs.NotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import jakarta.ws.rs.NotFoundException;
 import org.bson.types.ObjectId;
 import org.flighApp.Flight.dto.FlightDto;
 import org.flighApp.Flight.dto.TopDestinationsDto;
-import org.flighApp.Flight.dto.TripClassPricesDto;
+import org.flighApp.Flight.dto.TripClassPricesDto; 
 import org.flighApp.Flight.models.*;
 import org.flighApp.Flight.repo.FlightRepository;
-import org.flighApp.mongoDb.MongoDbUtil;
 import org.flighApp.utils.Utils;
 
 @ApplicationScoped

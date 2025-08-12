@@ -15,10 +15,10 @@ import java.util.Date;
 @Setter
 @FieldNameConstants
 public class Passenger {
-    private int id;
-    private String firstName;
-    private String lastName;
-    private String passportNumber;
-    private Date dateOfBirth;
-    private PassengerType type;
+  private int id;
+  private String firstName;
+  private String lastName;
+  private String passportNumber;
+  private Date dateOfBirth;
+  private PassengerType type;
 }

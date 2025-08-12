@@ -15,12 +15,8 @@ import org.bson.codecs.pojo.annotations.BsonRepresentation;
 @Setter
 @FieldNameConstants
 public class Seats {
-    @BsonProperty("tripClass")
-    @BsonRepresentation(BsonType.STRING)
-    private TripClass tripClass;
-    private int availableSeats;
-
-//    public TripClass getTripClass() {
-//        return TripClass.fromId(this.tripClass);
-//    }
+  @BsonProperty("tripClass")
+//  @BsonRepresentation(BsonType.STRING)
+  private TripClass tripClass;
+  private int availableSeats;
 }

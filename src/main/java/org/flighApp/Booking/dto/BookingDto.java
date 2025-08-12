@@ -1,4 +1,5 @@
 package org.flighApp.Booking.dto;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,8 +15,8 @@ import java.util.Date;
 @Setter
 @FieldNameConstants
 public class BookingDto {
-    private Passenger passenger;
-    private int flightId;
-    private Date bookingDate;
-    private int totalPassengers;
+  private Passenger passenger;
+  private int flightId;
+  private Date bookingDate;
+  private int totalPassengers;
 }

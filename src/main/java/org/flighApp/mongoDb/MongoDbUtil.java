@@ -7,7 +7,6 @@ import io.smallrye.mutiny.Uni;
 import java.util.List;
 import org.bson.conversions.Bson;
 import org.flighApp.Flight.models.PaginationParams;
-import org.flighApp.utils.Utils;
 
 public class MongoDbUtil {
 
@@ -40,7 +39,6 @@ public class MongoDbUtil {
   public static <T> Uni<List<T>> find(ReactiveMongoCollection<T> collection) {
     return collection.find().collect().asList();
   }
-
 
   public static <T> Uni<List<T>> find(
       ReactiveMongoCollection<T> collection, PaginationParams paginationParams) {

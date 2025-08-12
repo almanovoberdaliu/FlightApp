@@ -4,9 +4,7 @@ import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import java.util.Date;
 import java.util.List;
-
 import org.bson.types.ObjectId;
 import org.flighApp.Flight.dto.FlightDto;
 import org.flighApp.Flight.dto.TopDestinationsDto;
